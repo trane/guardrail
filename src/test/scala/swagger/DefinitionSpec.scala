@@ -80,7 +80,7 @@ class DefinitionSpec extends FunSuite with Matchers {
         val readOnlyKeys = Set[String]()
           Encoder.forProduct1("a")((o: First) => o.a).mapJsonObject(_.filterKeys(key => !(readOnlyKeys contains key)))
         }
-        implicit val decodeFirst = Decoder.forProduct1("a")(First.apply _)
+        implicit val decodeFirst = Decoder.forProduct1("a")((v0) => First(v0))
       }
     """
 
@@ -134,7 +134,7 @@ class DefinitionSpec extends FunSuite with Matchers {
           val readOnlyKeys = Set[String]()
           Encoder.forProduct2("a_b_c_d", "b_c_d_e")((o: Fifth) => (o.aBCD, o.bCDE)).mapJsonObject(_.filterKeys(key => !(readOnlyKeys contains key)))
         }
-        implicit val decodeFifth = Decoder.forProduct2("a_b_c_d", "b_c_d_e")(Fifth.apply _)
+        implicit val decodeFifth = Decoder.forProduct2("a_b_c_d", "b_c_d_e")((v0, v1) => Fifth(v0, v1))
       }
     """
 
@@ -155,7 +155,7 @@ class DefinitionSpec extends FunSuite with Matchers {
           val readOnlyKeys = Set[String]()
           Encoder.forProduct2("defval", "defval_opt")((o: Sixth) => (o.defval, o.defvalOpt)).mapJsonObject(_.filterKeys(key => !(readOnlyKeys contains key)))
         }
-        implicit val decodeSixth = Decoder.forProduct2("defval", "defval_opt")(Sixth.apply _)
+        implicit val decodeSixth = Decoder.forProduct2("defval", "defval_opt")((v0, v1) => Sixth(v0, v1))
       }
     """
 

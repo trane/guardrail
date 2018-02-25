@@ -95,7 +95,7 @@ class BasicTest extends FunSuite with Matchers {
           val readOnlyKeys = Set[String]()
           Encoder.forProduct1("map")((o: Blix) => o.map).mapJsonObject(_.filterKeys(key => !(readOnlyKeys contains key)))
         }
-        implicit val decodeBlix = Decoder.forProduct1("map")(Blix.apply _)
+        implicit val decodeBlix = Decoder.forProduct1("map")((v0) => Blix(v0))
       }
     """
 

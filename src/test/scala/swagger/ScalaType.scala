@@ -38,7 +38,7 @@ class ScalaTypesTest extends FunSuite with Matchers {
           val readOnlyKeys = Set[String]()
           Encoder.forProduct1("foo")((o: Baz) => o.foo).mapJsonObject(_.filterKeys(key => !(readOnlyKeys contains key)))
         }
-        implicit val decodeBaz = Decoder.forProduct1("foo")(Baz.apply _)
+        implicit val decodeBaz = Decoder.forProduct1("foo")((v0) => Baz(v0))
       }
     """
 

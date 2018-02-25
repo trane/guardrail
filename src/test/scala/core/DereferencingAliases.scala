@@ -78,7 +78,7 @@ class DereferencingAliasesSpec extends FunSuite with Matchers {
           val readOnlyKeys = Set[String]()
           Encoder.forProduct3("param", "array", "arrayArray")( (o: propRef) => (o.param, o.array, o.arrayArray) ).mapJsonObject(_.filterKeys(key => !(readOnlyKeys contains key)))
         }
-        implicit val decodepropRef = Decoder.forProduct3("param", "array", "arrayArray")(propRef.apply _)
+        implicit val decodepropRef = Decoder.forProduct3("param", "array", "arrayArray")((v0, v1, v2) => propRef(v0, v1, v2))
       }
     """
 

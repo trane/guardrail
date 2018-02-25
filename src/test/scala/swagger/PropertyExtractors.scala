@@ -98,7 +98,7 @@ class PropertyExtractors extends FunSuite with Matchers {
           "boolean_value", "string_value", "long_property", "int_property", "integer_property", "float_property",
           "double_property", "number_property", "object_property"
           /*, "ref_property", "ref_target_property", "array_property" */
-        )(Something.apply _)
+        )((v0, v1, v2, v3, v4, v5, v6, v7, v8) => Something(v0, v1, v2, v3, v4, v5, v6, v7, v8))
       }
     """
 

@@ -138,7 +138,7 @@ class BacktickTest extends FunSuite with Matchers {
         val readOnlyKeys = Set[String]()
         Encoder.forProduct1("dashy-param")((o: ${Type.Name("`dashy-class`")}) => o.${Term.Name("`dashy-param`")}).mapJsonObject(_.filterKeys(key => !(readOnlyKeys contains key)))
       }
-      implicit val ${Pat.Var(Term.Name("`decodedashy-class`"))} = Decoder.forProduct1("dashy-param")(${Term.Name("`dashy-class`")}.apply _)
+      implicit val ${Pat.Var(Term.Name("`decodedashy-class`"))} = Decoder.forProduct1("dashy-param")((v0) => ${Term.Name("`dashy-class`")}(v0))
     }
     """
 
@@ -150,7 +150,7 @@ class BacktickTest extends FunSuite with Matchers {
     cmp.structure should equal(companion.structure)
     cmp.toString should include ("`encodedashy-class`")
     cmp.toString should include ("`decodedashy-class`")
-    cmp.toString should include ("(`dashy-class`.apply _)")
+    cmp.toString should include ("`dashy-class`(v0)")
     cmp.toString shouldNot include (".dashy-")
     cmp.toString shouldNot include ("[dashy-")
     cmp.toString shouldNot include ("= dashy-")

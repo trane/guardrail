@@ -94,7 +94,7 @@ class ParamConflictsTest extends FunSuite with Matchers {
           val readOnlyKeys = Set[String]()
           Encoder.forProduct2("conflicting_name", "ConflictingName")((o: Foo) => (o.conflicting_name, o.ConflictingName)).mapJsonObject(_.filterKeys(key => !(readOnlyKeys contains key)))
         }
-        implicit val decodeFoo = Decoder.forProduct2("conflicting_name", "ConflictingName")(Foo.apply _)
+        implicit val decodeFoo = Decoder.forProduct2("conflicting_name", "ConflictingName")((v0, v1) => Foo(v0, v1))
       }
     """
 

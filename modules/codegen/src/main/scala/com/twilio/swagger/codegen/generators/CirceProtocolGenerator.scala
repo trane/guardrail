@@ -198,8 +198,10 @@ object CirceProtocolGenerator {
         val paramCount = params.length
         val decVal = if (paramCount <= 22 && emptyToNullKeys.isEmpty) {
           val names: List[Lit] = params.map(_.name).map(Lit.String(_)).to[List]
+          val bindingNames = (0 until paramCount).toList.map { i => Term.Name(s"v${i}") }
+          val bindingParams = bindingNames.map(Term.Param(List.empty, _, None, None))
           q"""
-            Decoder.${Term.Name(s"forProduct${paramCount}")}(..${names})(${Term.Name(clsName)}.apply _)
+            Decoder.${Term.Name(s"forProduct${paramCount}")}(..${names})((..${bindingParams}) => ${Term.Name(clsName)}(..${bindingNames}))
           """
         } else {
           val (terms, enumerators): (List[Term.Name], List[Enumerator.Generator]) = params.map({ param =>
