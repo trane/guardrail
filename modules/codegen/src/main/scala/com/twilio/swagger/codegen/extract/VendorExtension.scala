@@ -23,6 +23,7 @@ object VendorExtension {
     implicit val defaultVendorExtensibleSwagger = build[io.swagger.models.Swagger](m => key => m.getVendorExtensions.get(key))
 
     implicit val defaultVendorExtensibleArrayProperty = build[io.swagger.models.properties.ArrayProperty](m => key => m.getVendorExtensions.get(key))
+    implicit val defaultVendorExtensibleIntegerProperty = build[io.swagger.models.properties.IntegerProperty](m => key => m.getVendorExtensions.get(key))
     implicit val defaultVendorExtensibleBaseIntegerProperty = build[io.swagger.models.properties.BaseIntegerProperty](m => key => m.getVendorExtensions.get(key))
     implicit val defaultVendorExtensibleBooleanProperty = build[io.swagger.models.properties.BooleanProperty](m => key => m.getVendorExtensions.get(key))
     implicit val defaultVendorExtensibleDateProperty = build[io.swagger.models.properties.DateProperty](m => key => m.getVendorExtensions.get(key))

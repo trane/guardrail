@@ -5,7 +5,7 @@ import _root_.io.swagger.models.{ArrayModel, Model, ModelImpl, RefModel}
 import _root_.io.swagger.models.properties._
 import cats.implicits._
 import cats.~>
-import com.twilio.swagger.codegen.extract.{Default, ScalaEmptyIsNull, ScalaType}
+import com.twilio.swagger.codegen.extract.{Default, ScalaEmptyIsNull, ScalaType, ScalaWrapper}
 import com.twilio.swagger.codegen.terms.protocol._
 import java.util.Locale
 import scala.collection.JavaConverters._
@@ -94,25 +94,25 @@ object CirceProtocolGenerator {
           argName = if (needCamelSnakeConversion) toCamelCase(name) else name
           meta <- SwaggerUtil.propMeta(property)
 
-          defaultValue = property match {
-            case _: MapProperty =>
-              Option(q"Map.empty")
-            case _: ArrayProperty =>
-              Option(q"IndexedSeq.empty")
+          (defaultValue, scalaWrapper) = property match {
+            case p: MapProperty =>
+              (Option(q"Map.empty"), ScalaWrapper(p))
+            case p: ArrayProperty =>
+              (Option(q"IndexedSeq.empty"), ScalaWrapper(p))
             case p: BooleanProperty =>
-              Default(p).extract[Boolean].map(Lit.Boolean(_))
+              (Default(p).extract[Boolean].map(Lit.Boolean(_)), ScalaWrapper(p))
             case p: DoubleProperty =>
-              Default(p).extract[Double].map(Lit.Double(_))
+              (Default(p).extract[Double].map(Lit.Double(_)), ScalaWrapper(p))
             case p: FloatProperty =>
-              Default(p).extract[Float].map(Lit.Float(_))
+              (Default(p).extract[Float].map(Lit.Float(_)), ScalaWrapper(p))
             case p: IntegerProperty =>
-              Default(p).extract[Int].map(Lit.Int(_))
+              (Default(p).extract[Int].map(Lit.Int(_)), ScalaWrapper(p))
             case p: LongProperty =>
-              Default(p).extract[Long].map(Lit.Long(_))
+              (Default(p).extract[Long].map(Lit.Long(_)), ScalaWrapper(p))
             case p: StringProperty =>
-              Default(p).extract[String].map(Lit.String(_))
+              (Default(p).extract[String].map(Lit.String(_)), ScalaWrapper(p))
             case _ =>
-              None
+              (None, None)
           }
 
           readOnlyKey = Option(name).filter(_ => Option(property.getReadOnly).contains(true))
@@ -147,7 +147,7 @@ object CirceProtocolGenerator {
               )(Function.const((tpe, defaultValue)) _)
           term = param"${Term.Name(argName)}: ${finalDeclType}".copy(default=finalDefaultValue)
           dep = rawDep.filterNot(_.value == clsName) // Filter out our own class name
-        } yield ProtocolParameter(term, name, dep, readOnlyKey, emptyToNullKey)
+        } yield ProtocolParameter(term, name, dep, readOnlyKey, emptyToNullKey, scalaWrapper)
 
       case RenderDTOClass(clsName, terms) =>
         Target.pure(q"""
