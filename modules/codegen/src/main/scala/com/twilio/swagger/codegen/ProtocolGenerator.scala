@@ -5,7 +5,7 @@ import _root_.io.swagger.models.properties.Property
 import cats.data.Coproduct
 import cats.free.Free
 import cats.implicits._
-import com.twilio.swagger.codegen.extract.ScalaType
+import com.twilio.swagger.codegen.extract.{ScalaType, ScalaWrapper}
 import com.twilio.swagger.codegen.terms.protocol._
 import java.util.Locale
 import scala.collection.JavaConverters._
@@ -131,7 +131,8 @@ object ProtocolGenerator {
 
     for {
       concreteTypes <- extractConcreteTypes(definitions)
-      elems <- (definitions.map { case (clsName, model) =>
+      elems <- (definitions.map { case (realClsName, model) =>
+        val clsName = ScalaWrapper(model).getOrElse(realClsName)
         model match {
           case m: ModelImpl =>
             for {
