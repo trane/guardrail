@@ -158,18 +158,21 @@ object CirceProtocolGenerator {
         val readOnlyKeys: List[String] = params.flatMap(_.readOnlyKey).toList
         val paramCount = params.length
         val typeName = Type.Name(clsName)
+
+        val (names, tupleFields): (List[Lit], List[Term]) = (for {
+          param <- params
+          jsonKey = Lit.String(param.name)
+          baseAccessor = Term.Name(param.term.name.value)
+          accessor = param.scalaWrapper.fold[Term](q"o.${baseAccessor}")(Function.const(q"o.${baseAccessor}.value"))
+        } yield (jsonKey, accessor)).to[List].unzip
+
         val encVal = if (paramCount == 1) {
-          val (names, fields): (List[Lit], List[Term.Name]) = params.map(param => (Lit.String(param.name), Term.Name(param.term.name.value))).to[List].unzip
           val List(name) = names
-          val List(field) = fields
+          val List(field) = tupleFields
           q"""
-            Encoder.forProduct1(${name})((o: ${Type.Name(clsName)}) => o.${field})
+            Encoder.forProduct1(${name})((o: ${Type.Name(clsName)}) => ${field})
           """
-        } else if (paramCount >= 2 && paramCount <= 22) {
-          val (names, fields): (List[Lit], List[Term.Name]) = params.map(param => (Lit.String(param.name), Term.Name(param.term.name.value))).to[List].unzip
-          val tupleFields = fields.map({ field =>
-              Term.Select(Term.Name("o"), field)
-            }).to[List]
+        } else if (paramCount <= 22) {
 
           val unapply: Term.Function = Term.Function(
             List(param"o: ${Type.Name(clsName)}"),
@@ -179,10 +182,10 @@ object CirceProtocolGenerator {
             Encoder.${Term.Name(s"forProduct${paramCount}")}(..${names})(${unapply})
           """
         } else {
-          val pairs: List[Term.Tuple] = params.map(param => q"""(${Lit.String(param.name)}, a.${Term.Name(param.term.name.value)}.asJson)""").to[List]
+          val pairs: List[Term.Tuple] = names.zip(tupleFields).map({ case (name, field) => q"(${name}, ${field}.asJson)" }).to[List]
           q"""
             new ObjectEncoder[${Type.Name(clsName)}] {
-              final def encodeObject(a: ${Type.Name(clsName)}): JsonObject = JsonObject.fromIterable(Vector(..${pairs}))
+              final def encodeObject(o: ${Type.Name(clsName)}): JsonObject = JsonObject.fromIterable(Vector(..${pairs}))
             }
           """
         }
@@ -196,40 +199,43 @@ object CirceProtocolGenerator {
       case DecodeModel(clsName, needCamelSnakeConversion, params) =>
         val emptyToNullKeys: List[String] = params.flatMap(_.emptyToNullKey).toList
         val paramCount = params.length
+        val (names, accessorTpes, bindingNames) = (for {
+          (param, idx) <- params.toList.zipWithIndex
+          bindingName = Term.Name(s"v${idx}")
+          name = Lit.String(param.name)
+          accessor = param.scalaWrapper.fold[Term](bindingName)(wrapperName => q"${Term.Name(wrapperName)}(${bindingName})")
+          tpe = param.term.decltpe.flatMap({
+            case tpe: Type => Some(tpe)
+            case x =>
+              println(s"Unsure how to map ${x.structure}, please report this bug!")
+              None
+          })
+        } yield (name, (accessor, tpe), bindingName)).unzip3
+        val bindingParams = bindingNames.map(Term.Param(List.empty, _, None, None))
+        val (accessors, tpes) = accessorTpes.unzip
         val decVal = if (paramCount <= 22 && emptyToNullKeys.isEmpty) {
-          val (names, bindingNames, bindingParams) = (for {
-            (param, idx) <- params.toList.zipWithIndex
-            name = Term.Name(s"v${idx}")
-          } yield (Lit.String(param.name), name, Term.Param(List.empty, name, None, None))).unzip3
           q"""
-            Decoder.${Term.Name(s"forProduct${paramCount}")}(..${names})((..${bindingParams}) => ${Term.Name(clsName)}(..${bindingNames}))
+            Decoder.${Term.Name(s"forProduct${paramCount}")}(..${names})((..${bindingParams}) => ${Term.Name(clsName)}(..${accessors}))
           """
         } else {
-          val (terms, enumerators): (List[Term.Name], List[Enumerator.Generator]) = params.map({ param =>
-            val tpe: Type = param.term.decltpe.flatMap({
-              case tpe: Type => Some(tpe)
-              case x =>
-                println(s"Unsure how to map ${x.structure}, please report this bug!")
-                None
-            }).get
-            val term = Term.Name(param.term.name.value)
-            val enum = if (emptyToNullKeys contains param.name) {
+          val enumerators: List[Enumerator.Generator] = (for {
+            ((name, term), tpe) <- names.zip(bindingNames).zip(tpes)
+            enum = if (emptyToNullKeys contains name.value) {
               enumerator"""
-                ${Pat.Var(term)} <- c.downField(${Lit.String(param.name)}).withFocus(j => j.asString.fold(j)(s => if(s.isEmpty) Json.Null else j)).as[${tpe}]
+                ${Pat.Var(term)} <- c.downField(${name}).withFocus(j => j.asString.fold(j)(s => if(s.isEmpty) Json.Null else j)).as[${tpe.get}]
               """
             } else {
               enumerator"""
-                ${Pat.Var(term)} <- c.downField(${Lit.String(param.name)}).as[${tpe}]
+                ${Pat.Var(term)} <- c.downField(${name}).as[${tpe.get}]
               """
             }
-            (term, enum)
-          }).to[List].unzip
+          } yield enum).to[List]
           q"""
           new Decoder[${Type.Name(clsName)}] {
             final def apply(c: HCursor): Decoder.Result[${Type.Name(clsName)}] =
               for {
                 ..${enumerators}
-              } yield ${Term.Name(clsName)}(..${terms})
+              } yield ${Term.Name(clsName)}(..${accessors})
           }
           """
         }

@@ -125,41 +125,41 @@ class BigObjectSpec extends FunSuite with Matchers {
       object BigObject {
         implicit val encodeBigObject = {
           val readOnlyKeys = Set[String]()
-          new ObjectEncoder[BigObject] { final def encodeObject(a: BigObject): JsonObject = JsonObject.fromIterable(Vector(("v1", a.v1.asJson), ("v2", a.v2.asJson), ("v3", a.v3.asJson), ("v4", a.v4.asJson), ("v5", a.v5.asJson), ("v6", a.v6.asJson), ("v7", a.v7.asJson), ("v8", a.v8.asJson), ("v9", a.v9.asJson), ("v10", a.v10.asJson), ("v11", a.v11.asJson), ("v12", a.v12.asJson), ("v13", a.v13.asJson), ("v14", a.v14.asJson), ("v15", a.v15.asJson), ("v16", a.v16.asJson), ("v17", a.v17.asJson), ("v18", a.v18.asJson), ("v19", a.v19.asJson), ("v20", a.v20.asJson), ("v21", a.v21.asJson), ("v22", a.v22.asJson), ("v23", a.v23.asJson), ("v24", a.v24.asJson), ("v25", a.v25.asJson), ("v26", a.v26.asJson), ("v27", a.v27.asJson), ("v28", a.v28.asJson), ("v29", a.v29.asJson), ("v30", a.v30.asJson))) }.mapJsonObject(_.filterKeys(key => !(readOnlyKeys contains key)))
+          new ObjectEncoder[BigObject] { final def encodeObject(o: BigObject): JsonObject = JsonObject.fromIterable(Vector(("v1", o.v1.asJson), ("v2", o.v2.asJson), ("v3", o.v3.asJson), ("v4", o.v4.asJson), ("v5", o.v5.asJson), ("v6", o.v6.asJson), ("v7", o.v7.asJson), ("v8", o.v8.asJson), ("v9", o.v9.asJson), ("v10", o.v10.asJson), ("v11", o.v11.asJson), ("v12", o.v12.asJson), ("v13", o.v13.asJson), ("v14", o.v14.asJson), ("v15", o.v15.asJson), ("v16", o.v16.asJson), ("v17", o.v17.asJson), ("v18", o.v18.asJson), ("v19", o.v19.asJson), ("v20", o.v20.asJson), ("v21", o.v21.asJson), ("v22", o.v22.asJson), ("v23", o.v23.asJson), ("v24", o.v24.asJson), ("v25", o.v25.asJson), ("v26", o.v26.asJson), ("v27", o.v27.asJson), ("v28", o.v28.asJson), ("v29", o.v29.asJson), ("v30", o.v30.asJson))) }.mapJsonObject(_.filterKeys(key => !(readOnlyKeys contains key)))
         }
         implicit val decodeBigObject = new Decoder[BigObject] {
           final def apply(c: HCursor): Decoder.Result[BigObject] = for {
-            v1 <- c.downField("v1").as[Option[Int]]
-            v2 <- c.downField("v2").as[Option[Int]]
-            v3 <- c.downField("v3").as[Option[Int]]
-            v4 <- c.downField("v4").as[Option[Int]]
-            v5 <- c.downField("v5").as[Option[Int]]
-            v6 <- c.downField("v6").as[Option[Int]]
-            v7 <- c.downField("v7").as[Option[Int]]
-            v8 <- c.downField("v8").as[Option[Int]]
-            v9 <- c.downField("v9").as[Option[Int]]
-            v10 <- c.downField("v10").as[Option[Int]]
-            v11 <- c.downField("v11").as[Option[Int]]
-            v12 <- c.downField("v12").as[Option[Int]]
-            v13 <- c.downField("v13").as[Option[Int]]
-            v14 <- c.downField("v14").as[Option[Int]]
-            v15 <- c.downField("v15").as[Option[Int]]
-            v16 <- c.downField("v16").as[Option[Int]]
-            v17 <- c.downField("v17").as[Option[Int]]
-            v18 <- c.downField("v18").as[Option[Int]]
-            v19 <- c.downField("v19").as[Option[Int]]
-            v20 <- c.downField("v20").as[Option[Int]]
-            v21 <- c.downField("v21").as[Option[Int]]
-            v22 <- c.downField("v22").as[Option[Int]]
-            v23 <- c.downField("v23").as[Option[Int]]
-            v24 <- c.downField("v24").as[Option[Int]]
-            v25 <- c.downField("v25").as[Option[Int]]
-            v26 <- c.downField("v26").as[Option[Int]]
-            v27 <- c.downField("v27").as[Option[Int]]
-            v28 <- c.downField("v28").as[Option[Int]]
-            v29 <- c.downField("v29").as[Option[Int]]
-            v30 <- c.downField("v30").as[Option[Int]]
-          } yield BigObject(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30)
+            v0 <- c.downField("v1").as[Option[Int]]
+            v1 <- c.downField("v2").as[Option[Int]]
+            v2 <- c.downField("v3").as[Option[Int]]
+            v3 <- c.downField("v4").as[Option[Int]]
+            v4 <- c.downField("v5").as[Option[Int]]
+            v5 <- c.downField("v6").as[Option[Int]]
+            v6 <- c.downField("v7").as[Option[Int]]
+            v7 <- c.downField("v8").as[Option[Int]]
+            v8 <- c.downField("v9").as[Option[Int]]
+            v9 <- c.downField("v10").as[Option[Int]]
+            v10 <- c.downField("v11").as[Option[Int]]
+            v11 <- c.downField("v12").as[Option[Int]]
+            v12 <- c.downField("v13").as[Option[Int]]
+            v13 <- c.downField("v14").as[Option[Int]]
+            v14 <- c.downField("v15").as[Option[Int]]
+            v15 <- c.downField("v16").as[Option[Int]]
+            v16 <- c.downField("v17").as[Option[Int]]
+            v17 <- c.downField("v18").as[Option[Int]]
+            v18 <- c.downField("v19").as[Option[Int]]
+            v19 <- c.downField("v20").as[Option[Int]]
+            v20 <- c.downField("v21").as[Option[Int]]
+            v21 <- c.downField("v22").as[Option[Int]]
+            v22 <- c.downField("v23").as[Option[Int]]
+            v23 <- c.downField("v24").as[Option[Int]]
+            v24 <- c.downField("v25").as[Option[Int]]
+            v25 <- c.downField("v26").as[Option[Int]]
+            v26 <- c.downField("v27").as[Option[Int]]
+            v27 <- c.downField("v28").as[Option[Int]]
+            v28 <- c.downField("v29").as[Option[Int]]
+            v29 <- c.downField("v30").as[Option[Int]]
+          } yield BigObject(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29)
         }
       }
     """
